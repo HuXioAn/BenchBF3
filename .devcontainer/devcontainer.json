@@ -1,0 +1,35 @@
+{
+  "name": "DOCA Development Environment",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--name", "doca-dev",
+    "--privileged",             
+    "--net=host",               
+    "--ulimit", "memlock=-1:-1", 
+    "--device=/dev:/dev"       
+  ],
+  "mounts": [
+    "source=/dev,target=/dev,type=bind"
+  ],
+  // "workspaceFolder": "/root/dev",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",      
+        "ms-vscode.cmake-tools",   
+        "xaver.clang-format"      
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+
+  // "postCreateCommand": "ldconfig",
+
+  "remoteUser": "root"
+}
