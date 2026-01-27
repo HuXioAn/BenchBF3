@@ -116,7 +116,7 @@ void host_func() {
     LOG_I("Add jobs done!\n");
     LOG_I("Use memory:%s\n", MemTypeStr[MEMORY_TYPE]);
 
-    LOG_INFO("\tWorkingSet(KB)  \tPadding(words)  \tLatency(ns/100)  \tThroughput(MB/s)\n");
+    LOG_INFO("\tWorkingSet  \tPadding(words)  \tLatency(ns/100)  \tThroughput(MB/s)\n");
 
     cmdq.run();
 
