@@ -32,10 +32,10 @@ const char *MemTypeStr[] = {
     "POSIX_MEM_ALIGN"
 };
 
-#define MEMORY_TYPE COPY_FROM_HOST
+#define MEMORY_TYPE POSIX_MEM_ALIGN
 
 #if defined(RUN_IN_DPA) || defined(__riscv)
-#define LOOP_TOTAL 10000000
+#define LOOP_TOTAL 1000000
 #define CACHE_MIN_BITS (8)
 #define CACHE_MAX_BITS (28)//256MB
 #define PADDING_SIZE 7L

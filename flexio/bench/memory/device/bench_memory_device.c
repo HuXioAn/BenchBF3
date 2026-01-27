@@ -54,7 +54,7 @@ __dpa_rpc__ uint64_t bench_func(uint64_t arg_daddr){
 
 	uint64_t* data = arg->data;
 	for (int i = 0; i < 1; i++){
-		LOG_I("Arm mem:%ld\n", host_buffer[i]);
+		LOG_I("Host mem:%ld\n", host_buffer[i]);
 	}
 	for (int i = 0; i < 1; i++){
 		LOG_I("Private mem:%ld\n", data[i]);

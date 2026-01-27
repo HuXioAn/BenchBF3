@@ -32,7 +32,7 @@ void host_func() {
     flexio_status ret;
     int return_value;
 
-    FLEX::Context ctx("mlx5_bond_0");
+    FLEX::Context ctx("mlx5_0");
     ctx.alloc_pd();
 
     ctx.create_process(bench_cache_device);
@@ -116,9 +116,11 @@ void host_func() {
     LOG_I("Add jobs done!\n");
     LOG_I("Use memory:%s\n", MemTypeStr[MEMORY_TYPE]);
 
+    LOG_INFO("\tWorkingSet(KB)  \tPadding(words)  \tLatency(ns/100)  \tThroughput(MB/s)\n");
+
     cmdq.run();
 
-    auto duration = cmdq.wait_run(300); // 100 seconds
+    auto duration = cmdq.wait_run(3000); // 100 seconds
     LOG_I("Finished, total time: %ld us\n", duration);
     sleep(1); // wait log
 }

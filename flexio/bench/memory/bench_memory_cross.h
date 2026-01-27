@@ -6,11 +6,11 @@
 #define POSIX_MEM_ALIGN 1
 
 const char* MemTypeStr[] = {
-	"COPY_FROM_HOST",
-	"POSIX_MEM_ALIGN"
+	"COPY_FROM_HOST", // DPA Mem
+	"POSIX_MEM_ALIGN" // Host, can be x86 or Arm cluster on DPU
 };
 
-#define MEMORY_TYPE COPY_FROM_HOST
+#define MEMORY_TYPE POSIX_MEM_ALIGN
 
 #define LOOPS 1
 #define STRIDE 16
