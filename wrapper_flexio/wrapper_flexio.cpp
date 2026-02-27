@@ -142,7 +142,7 @@ namespace FLEX {
         flexio_status ret = flexio_msg_stream_create(process, &attr, stdout, nullptr, &default_stream);
         Assert(ret == FLEXIO_STATUS_SUCCESS);
 
-        std::string prefix = "./log/" + f_name_prefix + "_";
+        std::string prefix = "./log/" + f_name_prefix + "_"; // Create the folder!!!!
         streams = static_cast<flexio_msg_stream **>(malloc(num_threads * sizeof(flexio_msg_stream *)));
         number_of_threads = num_threads;
         for (int i = 0; i < num_threads; i++) {

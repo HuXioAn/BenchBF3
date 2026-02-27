@@ -1,11 +1,11 @@
 {
   "name": "DOCA Development Environment",
   "build": {
-    "dockerfile": "../Dockerfile",
+    "dockerfile": "./Dockerfile.DPU",
     "context": ".."
   },
   "runArgs": [
-    "--name", "doca-dev-270",
+    "--name", "doca-dev",
     "--privileged",             
     "--net=host",               
     "--ulimit", "memlock=-1:-1", 

@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/doca/doca:2.7.0-devel-host
+FROM nvcr.io/nvidia/doca/doca:2.7.0-devel
 
 # RUN sed -i 's/ports.ubuntu.com/mirrors.zju.edu.cn/g' /etc/apt/sources.list
 

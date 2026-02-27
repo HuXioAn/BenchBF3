@@ -10,7 +10,8 @@ extern "C"
 }
 
 // port bf_1 bond_0 mac
-#define SELF_MAC 0xa088c231f7e6
+// #define SELF_MAC 0xa088c231f7e6
+#define SELF_MAC 0x58a2e1bc08e2  // change this to the NIC MAC
 
 DECLARE_string(device_name);
 

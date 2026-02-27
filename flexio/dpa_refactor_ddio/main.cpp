@@ -16,7 +16,7 @@ signal_handler(int signum) {
 }
 
 // mostly is false 
-bool rq_buffer_on_host = true;
+bool rq_buffer_on_host = false; // false means on DPA
 
 int main(int argc, char **argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     config.sq_cq = new FLEX::CQ(false, LOG_CQ_RING_DEPTH, config.ctx, 0);
     config.rq = new FLEX::RQ(LOG_RQ_RING_DEPTH, LOG_WQ_DATA_ENTRY_BSIZE, config.rq_cq->get_cq_num(), config.ctx, rq_buffer_on_host);
     // use different tx/rx buffer
-    config.sq = new FLEX::SQ(13, 12, config.sq_cq->get_cq_num(), config.ctx);
+    config.sq = new FLEX::SQ(13, 12, config.sq_cq->get_cq_num(), config.ctx); // not on host by default
 
     queue_config_data dev_data{ config.rq_cq->get_cq_transf(), config.rq->get_rq_transf(), config.sq_cq->get_cq_transf(),
                                config.sq->get_sq_transf(), 0 ,0 ,config.ctx->get_window_id() };
@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
     Assert(flexio_process_call(config.ctx->get_process(), &dpa_refactor_device_init, &rpc_ret_val, dev_config_data) ==
         FLEXIO_STATUS_SUCCESS);
 
+    // reroute the packages that have dest MAC equals to mine to the RQ
     config.rx_dr = new FLEX::DR(config.ctx, MLX5DV_DR_DOMAIN_TYPE_NIC_RX);
     FLEX::flow_matcher matcher{};
     matcher.set_dst_mac_mask();
@@ -72,7 +73,8 @@ int main(int argc, char **argv) {
     config.tx_flow_rule->add_dest_vport(config.tx_dr->get_inner_ptr(), 0xFFFF);
 
     matcher.set_src_mac(SELF_MAC);
-    config.tx_flow_root_rule->create_dr_rule(config.tx_flow_root_table, &matcher);
+    // This one causes segment fault
+    // config.tx_flow_root_rule->create_dr_rule(config.tx_flow_root_table, &matcher); 
     config.tx_flow_rule->create_dr_rule(config.tx_flow_table, &matcher);
 
     config.ctx->event_handler_run(0);

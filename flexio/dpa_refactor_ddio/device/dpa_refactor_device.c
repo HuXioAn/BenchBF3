@@ -142,7 +142,7 @@ dpa_refactor_device_init(uint64_t data) {
  * Once all packets in the CQ are processed, the CQ will be rearmed to receive new packets events.
  */
 
-static const size_t total_pkg_num = 1024;
+static const size_t total_pkg_num = LOG2VALUE(LOG_RQ_RING_DEPTH);
 static const size_t batch_pkg_num = 64;
 static const size_t count_size = 1;
 static const size_t rq_pre_load = 0;
@@ -170,7 +170,7 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
 
     char *sq_data;
     uint64_t pos = 0;
-    static size_t total_loop_pos = 0;
+    static size_t total_loop_pos = 0; // static
     register size_t now_loop_batch_pos = total_loop_pos;
     while (pos < batch_pkg_num) {
         sq_data = NULL;
@@ -179,6 +179,7 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
 
             uint32_t data_sz;
             char *rq_data = receive_packet(&dev_ctx.rqcq_ctx, &dev_ctx.rq_ctx, &data_sz);
+            flexio_dev_print("data size: %d\n", data_sz);
             if (data_sz == 73) {
                 step_rq(&dev_ctx.rq_ctx);
                 step_cq(&dev_ctx.rqcq_ctx);
@@ -191,7 +192,7 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
 
             register uint64_t *tmp_ptr = (uint64_t *)rq_data;
 
-            tmp_ptr = (uint64_t *)(rq_data + (pos + now_loop_batch_pos) * LOG2VALUE(LOG_WQ_DATA_ENTRY_BSIZE));
+            tmp_ptr = (uint64_t *)(rq_data + (pos + now_loop_batch_pos) * LOG2VALUE(LOG_WQ_DATA_ENTRY_BSIZE)); // the packet to access this time
             // __dpa_thread_memory_fence(__DPA_R, __DPA_R);
 
             // begin_time = __dpa_thread_cycles();
@@ -231,11 +232,11 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
             if (!rq_on_host && (uint64_t *)rq_data != rq_buff) {
                 flexio_dev_print("%p %p %u Assert failed\n", (void *)rq_data, (void *)rq_buff, data_sz);
             }
-            pos = (pos + count_size);
+            pos = (pos + count_size); // pos++
 
             sq_data = get_next_send_buf(&dev_ctx.dt_ctx, LOG_WQ_DATA_ENTRY_BSIZE);
-            memcpy(sq_data, rq_data, 14);
-            for (int byte = 0; byte < 6; byte++) {
+            memcpy(sq_data, rq_data, 14); // ethernet head, 2 macs and type 2B
+            for (int byte = 0; byte < 6; byte++) { // swap MAC
                 char tmp = sq_data[byte];
                 sq_data[byte] = sq_data[byte + 6];
                 /* dst and src MACs are aligned one after the other in the ether header */
@@ -250,7 +251,7 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
             step_rq(&dev_ctx.rq_ctx);
             step_cq(&dev_ctx.rqcq_ctx);
         }
-        if (sq_data != NULL) {
+        if (sq_data != NULL) { // pollute cache ??
             __dpa_thread_memory_fence(__DPA_R, __DPA_R);
 
             uint64_t *tmp_ptr = dev_ctx.dt_ctx.sq_tx_buff;
@@ -279,6 +280,7 @@ dpa_refactor_device_event_handler(uint64_t __unused arg0) {
     flexio_dev_msg(0, FLEXIO_MSG_DEV_NO_PRINT, "%lu %lu\n", dummy, load_num);
 
     __dpa_thread_fence(__DPA_MEMORY, __DPA_W, __DPA_W);
+    // re arm cq the yield
     flexio_dev_cq_arm(dtctx, dev_ctx.rqcq_ctx.cq_idx, dev_ctx.rqcq_ctx.cq_number);
     flexio_dev_thread_reschedule();
 }
